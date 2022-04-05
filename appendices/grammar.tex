@@ -1,0 +1,40 @@
+\section{Our Context-Free Grammar}\label{app:bnf}
+
+Our context-free grammar is defined in BNF. The rules are the following:
+\begingroup \fontsize{9pt}{9pt}\selectfont
+
+    \begin{verbatim}
+    <root>       ::= <algorithm>
+    <algorithm>  ::= <indicator>[<item_property>]<item>[<conditions>]
+                    <collection>
+    <indicator>  ::= "Sum" | "Decide" | "Select" | "Search" | "Count" |
+                     "Maximum" | "Assort"
+    <item_property> ::= <characters> <conjunctive>
+    <conjunctive>   ::= "of"
+    <item>          ::= <characters>
+    <conditions>    ::= <condition><cc>[<conditions>]
+    <cc>            ::= "and" | "or" | "not" | "and not" |
+                                 "or not" | ""
+    <condition> ::= <identifier> <relation> <rhs>
+    <relation>  ::= <equality> | <comparison>
+    <equality>  ::= <equal> | <nequal>
+    <equal>  ::= "is" | "equals" | "=" | "==" | "is equal to"
+    <nequal> ::= "is not" | "isn’t" | "!=" | "<>" | "is not equal to"
+                 "not equals"
+    <comparison> ::= { <comp_less> | <comp_more> | <comp_less_e> |
+                       <comp_more_e> } [<than>]
+    <than>      ::= "than"
+    <comp_less> ::= ["is"]{"less" | "smaller" | "lower" | "<" }
+    <comp_more> ::= ["is"]{"more"| "bigger" | "larger" | "greater" |
+                    ">"}
+    <comp_less_e> ::= ["is"]{"less than or equal to" | "<=" | "at most"}
+    <comp_more_e> ::= ["is"]{"more than or equal to" | ">=" | "at least"}
+    <collection>  ::= ["in"] <container>
+    <container>   ::= <characters>
+    <rhs>         ::= <characters>
+    <algorithm_conjunction> ::= "within" | "after" | ""
+    <identifier> ::= <item> | <item_property>
+    <characters> ::= <characters><character> | <character>
+    <character>  ::= "a".."z" | "A".."Z" | "0".."9"  
+    \end{verbatim}  
+\endgroup

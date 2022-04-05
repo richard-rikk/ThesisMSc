@@ -1,0 +1,61 @@
+\section{Utterance Generation}\label{sec:STDT}
+
+This section describes our method to generate training examples. Our goal is to
+create sentences that are structured but similar to unstructured natural
+language. The structure is given by the CFG and the templates crafted carefully
+so the resulting sentences still satisfy the syntactic rules of natural
+language. We call these sentences structured task descriptions. Each of these
+descriptions has a natural language equivalent. \cref{fig:natural} shows a
+(structured task description, natural language sentence) pair. The task
+description will be used as the running example in this section.
+
+\insertPic{natural}{0.75}{A structured task description (bottom) and its natural
+  language counterpart (top). The intermediate step is included for explanation
+  purposes, in order to make the same parts in the two sentences more
+  identifiable.}
+
+The templates are handcrafted by expanding the algorithm rule (\cref{fig:arule})
+with extra tokens based on natural language utterances describing tasks.
+Templates are created for specific algorithmic patterns in order to get a result
+close to natural language. This is why in each template the \verb|<indicator>|
+field is fixed -- its value is predetermined by the indicator rule
+(\cref{fig:irule}). \cref{fig:template} shows a valid template used during the
+dataset generation.
+
+\insertPic{arule}{0.75}{The algorithm rule. The templates are created by
+  expanding this rule with additional tokens to make it similar to natural
+  language.}
+
+\insertPic{irule}{0.75}{The indicator rule. Each possible value maps to one of
+  the algorithmic patterns described in \cref{sec:pattern}.}
+
+\insertPic{template}{0.64}{A template to generate structured task descriptions
+  of the summation algorithmic pattern. It has the same fields as the
+  nonterminals of the algorithm rule in \cref{fig:arule} as it was created by
+  expanding that rule with additional tokens (except that it has a single
+  condition).}
+
+The templates give structure to the task descriptions. Each field in a template
+can be filled in multiple ways (\cref{fig:task}). We can obtain many examples
+from a template so we can compile a diverse dataset by using a relatively small
+number of templates. The \texttt{<conditions>} rule shown in \cref{fig:crule}
+also helps to make our dataset more diverse as it can generate a wide variety of
+conditions.
+
+\insertPic{task}{0.59}{Creating a structured task description from a template by
+  filling in its fields. The value of each field is randomly selected from
+  its list of possible values. The figure has two possible values in each list
+  for demonstration.}
+
+\insertPic{crule}{0.75}{The condition rule can generate different conditions in
+  the templates.}
+
+The Python snippets are generated from the filled templates. First the
+algorithmic pattern and its code structure is selected based on the
+\texttt{<indicator>} field. Then the rest of the fields are used to substitute
+the corresponding components in the code structure to yield the code snippet.
+\cref{fig:connect} shows an example of code snippet generation from a template.
+
+\insertPic{connect}{0.6}{Given a filled template, one can produce the
+  corresponding code snippet by selecting the code structure based on the
+  \texttt{<indicator>} field and filling its components.}

@@ -1,0 +1,51 @@
+\section{Introduction}
+%
+Generating program code from natural language utterances plays a significant
+role in Artificial Intelligence research \cite{useful1, useful2, useful3}. There are several reasons for that. The realization of such technology would allow professionals to produce their
+software faster by cutting development time significantly. Also, it would be
+possible for anyone without coding experience to create software and it could
+potentially reduce the barrier of entry into computer science. However, creating
+such technology is a challenging task due to the complexity and ambiguity of
+natural language. 
+
+Considering previous work, we can distinguish two main categories of program
+synthesis methods with respect to the naturalness of the input. Some models do
+not place any or significant constraints on the input utterances. Other models
+demand that the inputs meet strict rules concerning their form. The two
+categories of models face different challenges.
+
+When using natural language utterances without any constraints\cite{text1,
+  text2}, the model has to learn the complex relationship between language and
+code, which requires powerful models and large datasets. Providing datasets with
+adequate cardinality and quality for these models needs a lot of effort and
+resources.
+
+In contrast, models working with constrained, structured inputs tend to perform
+better and are able to avoid some of the pitfalls of natural language. However,
+the inputs are closer to formal than natural language, so we lose the
+naturalness of the interface and the accessibility for people without coding
+experience.
+
+In this paper, we combine the advantages of unconstrained and structured models.
+We present a method that learns from structured inputs but synthesizes programs
+from unconstrained natural language. We show that training the transition-based
+\cite{trans} neural network TranX \cite{tranx} on \emph{(structured utterance, code
+snippet)} pairs enables \emph{generalization} to unconstrained natural language
+inputs, in case enough training data is given.
+
+The structured training dataset is generated automatically, which allows us to obtain the large dataset necessary for generalization. In the dataset, structured utterances are created using templates and a context-free grammar (CFG). The code snippets are basic algorithmic patterns \cite{progT}. Basic algorithmic patterns aim to solve common programming problems and are constructed from elementary operations using formal mathematical methods that guarantee their correctness. 
+
+The main advantage of our method is that our \emph{example generator} is capable
+of generating datasets with an arbitrary number of training examples given a
+suitable grammar and templates. These examples are then used to train the neural
+network which can generalize to unconstrained inputs. The method is general, as
+the templates, the grammar, and the code snippet generator can be tailored to
+specific domains.
+
+In the next sections, we go over our method in detail. First, an overview is
+provided highlighting all the main parts of our model. Then, the algorithmic
+patterns are discussed that are the basis of the generated code. Next is our
+method for utterance generation including the structure of our grammar and the
+idea of templates. After this, the role of TranX and its modifications are
+explained. Finally, various datasets are introduced, and their creation,
+cardinality and purpose are also described.

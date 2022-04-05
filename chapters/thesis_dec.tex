@@ -1,0 +1,20 @@
+Program synthesis from natural language utterances has been an important goal of
+artificial intelligence because of the many possibilities it offers to help
+human-computer interactions. However, forming program code from natural language
+is a challenging task because natural language utterances tend to be complex and
+ambiguous with multiple possible interpretations.
+ 
+The problem can be tackled in multiple ways. Some models do not constrain their
+natural language inputs and try to learn to represent them despite the
+complexity and ambiguities. Other models severely limit the space of the
+possible inputs, gaining accuracy but losing generality.
+ 
+In my thesis, I try to find a middle ground between these approaches. I apply a
+context-free grammar to generate structured utterances that are close to natural
+language. The resulting sentences are between constrained and unconstrained
+inputs and gain many positive properties. From the structured side, one can gain
+easier training and dataset generation, while from the natural language side
+ease of use and interpretability. Our method allows for the generation of large
+datasets where the inputs can be used with state of the art transition-based
+models to achieve good results. The model trained on these semi-structured
+inputs is able to generalize to natural language utterances.

@@ -1,0 +1,125 @@
+\documentclass[
+	%parspace, % Térköz bekezdések közé / Add vertical space between paragraphs
+	%noindent, % Bekezdésének első sora ne legyen behúzva / No indentation of first lines in each paragraph
+	%nohyp, % Szavak sorvégi elválasztásának tiltása / No hyphenation of words
+	%twoside, % Kétoldalas nyomtatás / Double sided format
+	%draft, % Gyorsabb fordítás ábrák rajzolása nélkül / Quicker draft compilation without rendering images
+	%final, % Teendők elrejtése / Set final to hide todos
+]{elteikthesis}[2021/09/20]
+
+% The minted package is also supported for source highlighting
+\usepackage[newfloat]{minted}
+\usepackage{booktabs}
+\usepackage{cleveref}
+\usepackage{enumitem}
+
+% Dolgozat metaadatai
+% Document's metadata
+\title{Generating Algorithmic Patterns from Semi-structured Input Using a Transition-based Neural Network} % cím / title
+\date{2022} % védés éve / year of defense
+
+% Szerző metaadatai
+% Author's metadata
+\author{Richárd Rikk}
+\degree{Artificial Intelligence MSc}
+
+% Témavezető(k) metaadatai
+% Superivsor(s)' metadata
+\supervisor{Teréz A. Várkonyi} % belső témavezető neve / internal supervisor's name
+\affiliation{Senior Lecturer} % belső témavezető beosztása / internal supervisor's affiliation
+\extsupervisor{Balázs Pintér} % külső témavezető neve / external supervisor's name
+\extaffiliation{Senior Lecturer} % külső témavezető beosztása / external supervisor's affiliation
+
+% Egyetem metaadatai
+% University's metadata
+\university{Eötvös Loránd University} % egyetem neve / university's name
+\faculty{Faculty of Informatics} % kar neve / faculty's name
+\department{Dept. of Artificial Intelligence} % tanszék neve / department's name
+\city{Budapest} % város / city
+\logo{elte_cimer_szines} % logo
+
+%%%%%%%%%%%%%%%  Add bibliography file %%%%%%%%%%%%%%% 
+\addbibresource{cites.bib}
+
+%%%%%%%%%%%%%%%  The document %%%%%%%%%%%%%%% 
+\begin{document}
+
+% Set document language
+%\documentlang{magyar}
+\documentlang{english}
+
+% Teendők listája (final dokumentumban nincs)
+% List of todos (not in the final document)
+%\listoftodos[\todolabel]
+
+%%%%%%%%%%%%%%% Title page (mandatory) %%%%%%%%%%%%%%%
+\maketitle
+\topicdeclaration{\input{chapters/thesis_dec}}
+
+%%%%%%%%%%%%%%% Table of contents (mandatory) %%%%%%%%%%%%%%%
+\tableofcontents
+\cleardoublepage
+
+%%%%%%%%%%%%%%% Main content %%%%%%%%%%%%%%%
+\input{chapters/motivation}
+\cleardoublepage
+
+\input{chapters/intro.tex}
+\input{chapters/related_work}
+\input{chapters/overview}
+\input{chapters/algorithmic_patterns}
+\input{chapters/utterance_generation}
+\input{chapters/tranx}
+\input{chapters/evaluation}
+\input{chapters/conclusion}
+\input{chapters/acknowledgements}
+\cleardoublepage
+
+% Függelékek (opcionális) - hosszabb részletező táblázatok, sok és/vagy nagy kép esetén hasznos
+% Appendices (optional) - useful for detailed information in long tables, many and/or large figures, etc.
+\appendix
+\input{appendices/grammar} \cleardoublepage
+\input{appendices/hyperparameters}
+\input{appendices/templates}
+\cleardoublepage
+
+% Irodalomjegyzék (kötelező)
+% Bibliography (mandatory)
+\phantomsection
+\addcontentsline{toc}{section}{\biblabel}
+\printbibliography[title=\biblabel]
+\cleardoublepage
+
+% Ábrajegyzék (opcionális) - 3-5 ábra fölött érdemes
+% List of figures (optional) - useful over 3-5 figures
+\phantomsection
+\addcontentsline{toc}{section}{\lstfigurelabel}
+\listoffigures
+\cleardoublepage
+
+% Táblázatjegyzék (opcionális) - 3-5 táblázat fölött érdemes
+% List of tables (optional) - useful over 3-5 tables
+\phantomsection
+\addcontentsline{toc}{section}{\lsttablelabel}
+\listoftables
+\cleardoublepage
+
+% Algorithmusjegyzék
+% List of algorithms
+% \phantomsection
+% \addcontentsline{toc}{section}{\lstalgorithmlabel}
+% \listofalgorithms
+% \cleardoublepage
+
+% Forráskódjegyzék (opcionális) - 3-5 kódpélda fölött érdemes
+% List of codes (optional) - useful over 3-5 code samples
+% \phantomsection
+% \addcontentsline{toc}{section}{\lstcodelabel}
+% \lstlistoflistings
+% \cleardoublepage
+
+% Jelölésjegyzék (opcionális)
+% List of symbols (optional)
+%\printnomenclature
+
+\end{document}

@@ -1,0 +1,46 @@
+\section{Overview}
+
+\insertPic{method}{0.65}{Utterance generation from the handcrafted inputs. Given
+  the grammar and natural language utterance examples, templates were
+  constructed that mimic the structure of the examples but contain all necessary
+  information to solve the given task. The templates are used to create
+  (structured task description, Python code snippet) pairs by fixing the
+  \texttt{<indicator>} to obtain the pattern specific templates and then
+  randomly selecting values for all the other fields from lists of possible
+  values.}
+
+In this section, our training dataset generation method is presented. The method can be seen in \cref{fig:method}. First, a context-free grammar (CFG) is created -- in Backus-Naur Form (BNF)\cite{bnf} -- for some set of tasks. The tasks, in our case are solvable by algorithmic patterns and are expressed in natural language. After that, templates are handcrafted so that they satisfy the CFG and they cover the selected tasks.
+
+The generator is using the templates to generate the \emph{(structured task
+description, Python code snippet)} pairs in multiple steps. First, for a given
+template, an \verb|<indicator>| value is selected. Second, all fields of this
+template receive a concrete value so the input sentence is created. The last
+step is to produce the code snippet for the generated sentence, which means
+using the value of the \verb|<indicator>| field to define which algorithm should
+be used and then substituting the rest of the values.
+
+The CFG has been constructed so that it fits both the algorithmic patterns
+discussed in \cite{progT} as well as the English language. These patterns allow
+us to define a broad set of tasks, which have well defined solutions. Using
+algorithmic patterns has the advantage that they are simple and mathematically
+sound.
+
+After generating the dataset containing enough \emph{(structured task description, Python code snippet)} pairs, the transition-based neural network TranX \cite{tranx} is trained on it.
+Even though it is trained on structured inputs, we test its ability to map \emph{unconstrained} task descriptions to code snippets.
+
+TranX is usually used to map unconstrained natural language utterances to formal
+meaning representations, which are typically code snippets. It has already
+achieved good results on many datasets, targeting different programming
+languages. In this paper, we focus on Python 3 for its simplicity and ease of
+use. It is important to highlight that our grammar is language-independent and
+so is TranX:~it does not assume constraints on the input utterance or that it is
+structured in any way. We aim to show that structuring the input sentences
+allows TranX to generalize to natural language utterances.
+
+Our templates have a bridging role. Their purpose is to create a more structured
+representation by using natural language task descriptions as an example, while
+maintaining their meaning and if necessary, extending them to make them more
+interpretable. This is needed because these descriptions are ambiguous. The
+ambiguity can be reduced by simplifying certain expressions in the sentences.
+However, this has to be done sparingly, otherwise the result becomes code-like,
+which would alienate people without coding experience.

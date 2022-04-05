@@ -1,0 +1,28 @@
+\section{Transition-based Neural Network}
+
+As the model we use TranX\cite{tranx}, an abstract syntax network
+\cite{abstractNetworks} using a global attention mechanism \cite{translation,
+  LuongPhamManning2015} and an additional pointer network
+\cite{VinyalsFortunatoJaitly2015}.
+
+The core of TranX is a transition system which maps natural language utterances
+to abstract syntax trees (ASTs) using a series of tree-constructing actions. The
+ASTs are used as domain-independent intermediate meaning representations, and
+are converted later into domain-specific meaning representations like the lambda
+calculus or Python programs. The ASDL framework \cite{asdl} is used to define
+the ASTs. The tree-constructing actions apply the constructors of the ASDL
+grammatical formalism to build the AST in a top-down, left-to-right order.
+
+The network learns in a supervised fashion, using (utterance, AST) pairs. The
+ASTs are created from Python code by the reverse of the generation process: the
+sequence of source code tokens is transformed into a Python AST, the Python AST
+is converted into a domain-independent isomorphic AST, from which finally the
+sequence of tree-constructing actions is obtained.
+
+We had to apply some minor modifications to the TranX software \cite{tranxRepo}
+to make it scale up to our experiments. The pickling\cite{oliphant2007python}
+process and the training loop were changed to support arbitrary large datasets.
+Other than these two changes the software is the same as the original found on
+GitHub \cite{tranxRepo}. The architecture is unaffected by our modifications and
+we use the same hyperparameters as \cite{tranx}. A complete list of
+hyperparameters can be found in Appendix~\ref{sec:hype}.

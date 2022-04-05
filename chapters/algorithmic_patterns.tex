@@ -1,0 +1,149 @@
+\section{Algorithmic Patterns}
+\label{sec:pattern}
+
+Generic algorithmic patterns\cite{progT, progT1} are applied to
+solve frequently occurring programming problems, like counting
+or summing elements of a collection\cite{progSolve}. The problems can appear in different forms
+but their substance is the same, so we can use analogies with the algorithmic
+patterns to solve them. This section describes the chosen algorithmic patterns
+and their corresponding Python snippets.
+
+Algorithmic patterns come from the area of analogous programming\cite{progT}, a
+formal software development method where programs are composed from provably
+correct parts.
+
+We are using the following algorithmic patterns, detailed below:
+
+\begin{enumerate}[noitemsep]
+  \item Summation
+  \item Count
+  \item Maximum search
+  \item Selection
+  \item Decision
+  \item Assortment
+\end{enumerate}
+
+\subsection{Formalism}\label{sec:def}
+
+In order to discuss the used patterns effectively, formalisms need to be
+introduced. These will be used to define algorithmic patterns and they are
+relevant in the construction of the CFG rules.
+
+Let us introduce the set \( \mathcal{H} \), a set on which a given task is
+defined. For example, if our task is to sum the elements of set
+\( \{ 1, 2, 6, 7, 12, 5 \} \), then \( \mathcal{H} = \mathbb{N} \). In this case
+\( h \in \mathcal{H} \) is a natural number.
+
+In our tasks the elements are members of a \( collection \) which is a sequence
+holding the relevant elements of \( \mathcal{H} \). We can iterate over a
+collection. We are using Python 3, so in our concrete case \( collection \) is a
+Python list and \( h \in collection \) is an element of the list.
+
+An important thing to consider is that in many cases, \( \mathcal{H} \) contains
+compound elements. For example, if our task is to find the tallest student in a
+classroom, \( \mathcal{H} \) can contain objects (records) of students with
+different attributes. We have to select the relevant property from e.g., name,
+height, grades, etc. We denote the set of values of the relevant property by
+\( \mathcal{V} \). In the example height is the relevant property, therefore
+\( \mathcal{V} = \mathbb{N} \).
+
+We also introduce a mapping function \( f: \mathcal{H} \to \mathcal{V} \) to map
+the elements of the \( collection \) to their relevant value. In the example
+\( f \) would map students to their heights. In case of primitive types, like
+natural numbers, \( \mathcal{H} = \mathcal{V} \) and \( f \) is the identity
+function.
+
+Finally, the filtering function \( c: \mathcal{H} \to \mathbb{L}\) maps
+\( x \in \mathcal{H} \) to a logical value, based on a condition. The role of
+function \( c \) is to determine which elements of the \( collection \) take
+part in the calculation.
+
+\subsection{The Algorithmic Patterns}
+
+This section describes the algorithmic patterns we use and provides a generic
+Python code snippet for each. Since our dataset contains \emph{(utterance, code)}
+pairs, these snippets can be used as templates for the latter. During the
+creation of these snippet templates the emphasis was on understandability,
+therefore it is possible that some of these templates are not the most
+efficient. However changing the templates are relatively easy if efficiency
+becomes more important later.
+
+\paragraph{Summation}\label{sec:sum}
+is one of the most applicable patterns\cite{Sum}. It is used when items of a
+collection need to be summed:
+\begin{listing}[H]
+\begin{minted}{python}
+    r = sum(f(x) for x in collection if c(x) )
+\end{minted}
+\end{listing}
+
+
+\paragraph{Count}
+is used to count those items of a collection that satisfy a certain condition:
+\begin{listing}[H]
+\begin{minted}{python}
+    r = sum(1 for x in collection if c(x) )
+\end{minted}
+\end{listing}
+
+\paragraph{Maximum search}
+is an algorithmic pattern where our task is to find the maximum element
+according to comparison operator \( \leq \):
+\begin{listing}[H]
+\begin{minted}{python}
+    r = max(f(x) for x in collection),
+\end{minted}
+\end{listing}
+
+where the \( max \) function uses the comparison operator. Although this
+formulation describes the algorithm well when the task is to find the maximal
+element according to the operator \( \leq \), it falls short when a condition is
+introduced. In order to handle such cases, one can extend the algorithm with a
+condition. In this case, it is assumed that there is at least one
+element satisfying the condition. The new form of the algorithm augmented by
+condition \( c \):
+
+\begin{listing}[H]
+\begin{minted}{python}
+    r = max(f(x) for x in collection if c(x) )
+\end{minted}
+\end{listing}
+
+\paragraph{Selection}
+is used when the task is to find the first element matching a condition. The
+precondition is that at least one element satisfies the condition.
+\begin{listing}[H]
+\begin{minted}{python}
+    r = next(f(x) for x in collection if c(x) )
+\end{minted}
+\end{listing}
+
+
+\paragraph{Decision}
+ determines whether there is an element that satisfies the given condition \( c \). 
+\begin{listing}[H]
+\begin{minted}{python}
+    r = any(c(x) for x in collection)
+\end{minted}
+\end{listing}
+
+The problem to decide whether all elements meet the given condition \( c \) can
+be formulated in similar fashion.
+
+\begin{listing}[H]
+\begin{minted}{python}
+    r = all(c(x) for x in collection)
+\end{minted}
+\end{listing}
+
+\paragraph{Assortment}
+is used when a set of elements needs to be separated into two subsets: one where
+all elements meet a certain condition and another where elements do not meet
+this condition.
+\begin{listing}[H]
+\begin{minted}{python}
+    r1 = [x for x in collection if c(x) ]
+    r2 = [x for x in collection if not c(x)],
+\end{minted}
+\end{listing}
+where \( r1 \) and \( r2 \) do not contain any identical items.

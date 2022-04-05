@@ -1,0 +1,51 @@
+\section{Related Work}
+
+In this section, methods dealing with program synthesis are going to be
+discussed. As we remarked earlier, we distinguish two categories of program
+synthesis methods with respect to the naturalness of the input. The first
+category includes the usage of natural language utterances without any constraints. In
+this category, e.g., TranX \cite{tranx}, Allamanis et al. \cite{project3}, and
+Bunel et al. \cite{project4} can be mentioned.
+
+TranX is transition-based neural semantic parser using the abstract syntax
+description of the target programming language. The task of the neural network
+is to learn the steps of creating an abstract syntax tree (AST) representation
+for the input natural language utterance. The method is highly generalizable as
+only the abstract syntax description has to be replaced to change the target
+programming language. However, the transformation function that converts an AST
+into a program code has to be defined by hand.
+
+In \cite{project3}, authors map short natural languages to code snippets and
+vice versa using a probabilistic model. They build up a directed parse tree
+where the child nodes are generated based on the natural language input and the
+partial tree.
+
+In \cite{project4}, reinforcement learning is used on top of a supervised model
+with the objective to maximize the likelihood of generating semantically correct
+programs. More precisely, each input-output pair is embedded jointly by a
+convolutional neural network. Then a long short-term memory decoder is used for
+each example. The results of all decoders are maxpooled, then the reinforcement
+model is used to get the prediction.
+
+In the second category of program synthesis, where models work with constrained
+inputs, Quirk et al. \cite{project1} and Yao et al. \cite{project11} are
+interesting examples.
+
+Quirk et al. in \cite{project1} show a way to map natural language “if-then” rules
+to executable code. Their approach creates ASTs from structured utterances
+with the help of a probabilistic log-linear text classifier. The ASTs represent
+if-then recipes matching a formal grammar created by the authors.
+
+Yao et al. in \cite{project11} use hierarchical reinforcement learning where the
+agent is allowed – instead of synthesizing a program in one shot – to ask
+follow-up questions from the user. This is done by defining different subtasks
+like predicting trigger/action channel/function and using a model with a
+hierarchical policy. A high-level policy decides the order of the subtasks to
+work on, and low-level policies decide whether a clarifying question is needed
+or the given subtask component can be predicted. The goal of the agent is to
+maximize the parsing accuracy and minimize the number of questions needed.
+
+Our solution sits on the middle ground between the unconstrained and constrained
+approaches and tries to have the best of both worlds. The sentences become
+interpretable just like natural utterances but they remain structured enough for
+automated generation which facilitates the supervised learning of models.

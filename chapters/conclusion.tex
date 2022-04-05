@@ -1,0 +1,18 @@
+\section{Conclusion}
+
+Program synthesis from natural languages is a challenging task. Some methods
+restrict possible inputs by having them conform to a specific structure while
+others do not. Our method combines the advantages of these two approaches.
+
+We proposed a method that can generate a virtually unlimited number of
+structured training examples. We also demonstrated that training the transition
+neural network TranX \cite{tranx} using these structured examples allows it to
+generalize to unconstrained natural language uttrances. Taken together we
+constructed a method to train program synthesis models in domains where natural
+language data is scarce or nonexistent.
+
+An interesting future research direction would be to investigate whether the
+grammar and the templates themselves can be inferred from a natural language
+corpus. If we could infer these then the whole process could be automatized: we
+could automatically augment natural language corpora with lots of synthetic
+examples to train models that generalize to natural language.
