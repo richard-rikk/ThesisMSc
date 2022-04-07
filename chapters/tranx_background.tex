@@ -1,0 +1,342 @@
+\section{Details of the model}
+TranX is a complex web of technologies working collectively in order to create meaning
+representations from natural language descriptions. This section unravels the web by
+explaining in detail the more important parts of the model. These parts are the problem
+statement, the transition system, and the neural network architecture itself.
+
+\subsection{Problem Statement}
+
+\subsubsection{Semantic Parsing}\label{sec:parsing}
+
+The general task of semantic parsing consists of mapping a natural language query to a
+corresponding formal meaning representation. This can be formalized as finding the relation
+\(\varphi \subseteq NLQ \times FMR\)\label{form:fmr}, where for a given query \(q\) a 
+representation \(r\)corresponds to \(q\) if \(r \in \varphi(q)\).
+
+For the purposes of this paper, a \(q = w_{1} \dots w_{|q|} \in NLQ\) query is a correctly
+formulated body of text in a given natural language, expressed as a sequence of words.
+An \(r = s_{1} ... s_{|r|} \in FMR\) representation is a sequence of terminal symbols
+that is valid in a given formal language.
+
+The relationship captured by \(\varphi\) is semantic by nature. When \((q, r)\) is an element of
+\(\varphi\), it is intended to imply that the human-understood meaning of \(q\) can be equated
+with the machine-understandable \(r\).
+
+\subsubsection{Intent Parsing}
+
+Intent parsing is a special case of semantic parsing. In intent parsing, the meaning of 
+\(q\) is the object of the intention, the action intended to be carried out. The form in 
+which this meaning is to be represented after semantic parsing is such that the original 
+action may be performed based solely on the representation.
+
+Intent parsing can be used to model the semantic transition that takes place when writing
+a computer program. The programmer has an action in mind that is to be performed by the
+computer upon running the program. This action's description is already formulated by
+the programmer in a natural language before it is implemented in a programming language.
+
+In our case, a natural language description of a programming task (an action to be
+performed by a computer) serves as the input, and a program that solves the described
+task (performs the required action) is the output.
+
+\subsection{Transition System}
+
+\subsubsection{Transition Process}
+
+A transition system \(\tau\) is a bijective function from an arbitrary set \(IMR\) to \(FMR\),
+in our case \(IMR\) is a set of AST constructing action sequences and \(FMR\) is a set of formal
+meaning representations. Using the transition system, one can solve the intent parsing task of
+finding an \(r \in \varphi(q)\) for a given \(q\) by finding an \(a \in IMR\) for which
+\(\tau(a) = r \in \varphi(q)\). In this sense, \(IMR\) is the set of intermediate meaning
+representations, and the transition system is the method of conversion between them and the
+final outputs, the elements of \(FMR\).
+
+\textbf{\textsc{Decomposition}}\ \ \ The transition system can take several steps to get
+from an \(a \in IMR\) to an \(r \in FMR\), and similarly, its inverse \(\tau^{-1}\)
+can take these same steps in a backward order to perform the conversion in the other direction.
+This essentially means that the transition system is a function composition
+\(\tau = \tau_{n} \circ ... \circ \tau_{1}\) and \(\tau^{-1} = \tau_{1}^{-1} \circ \dots 
+\circ \tau_{n}^{-1}\), where each \(\tau_{i}\) is bijective.
+
+\textbf{\textsc{Transition Process}}\ \ \ In the case of TranX, a transition system is utilized
+for which \(\tau^{-1}\) works similarly to a compiler. \(\tau_{5}^{-1}\) is a lexical scanner, 
+which takes the sequence of words of a syntactically correct Python program, and transforms it
+into a sequence of tokens. \(\tau_{4}^{-1}\) converts this token sequence into a parse tree,
+according to Python's full grammar specification \cite{PythonFullGrammar}. \(\tau_{3}^{-1}\) 
+transforms the parse tree into a more compact and easier-to-handle abstract syntax tree (AST),
+according to Python's abstract syntax grammar specification \cite{PythonAbstractGrammar}.
+So far, this process is equivalent to the functionality of CPython's parser module
+\cite{CPythonCompiler}. \(\tau_{2}^{-1}\) converts the Python AST to an isomorphic AST
+with a different underlying implementation. Finally, \(\tau_{1}^{-1}\) outputs a sequence
+of tree-constructing actions that correspond to the leftmost generative story
+of the previous component's AST.
+
+\textbf{\textsc{Invertibility}}\ \ \ It is important to note that the above described transitions
+are usually not reversible, certain restrictions have to be put in place to ensure one-to-one
+correspondence. Having said that, the bijectivity of these functions is accepted to be given,
+and the specifics of how it is achieved is not discussed in detail here.
+
+\subsubsection{ASDL}
+
+The AST itself adheres to Python's abstract syntax grammar, which is specified using
+ASDL, the Abstract Syntax Description Language \cite{WangAppelKornSerra1997}.
+A simplified version of ASDL is defined by the following EBNF \cite{Wirth1977} description:
+
+\begin{verbatim}
+    grammar        = types;
+    types          = { type };
+    type           = name, "=", constructors;
+    constructors   = constructor, { "|", constructor };
+    constructor    = name, [ fields ];
+    fields         = "(", field, { ",", field }, ")";
+    field          = name, [ "?" | "*" ], [ name ];
+    letter         = "a" | ... | "Z";
+    alpha_num      = "_" | letter | "0" | ... | "9";
+    name           = letter, { alpha_num };
+\end{verbatim}
+
+\noindent
+Let's introduce the following predicates to capture the semantics of ASDL:
+ \begin{equation}
+ \begin{split}
+    Type(t) &= \text{"t is a type"} \\
+    Prim(t) &= \text{"t is a primitive type"} \\
+    Comp(t) &= \text{"t is a composite type"} \\
+    Ctor(c) &= \text{"c is a constructor"} \\
+    Field(f) &= \text{"f is a field"} \\
+    SinField(f) &= \text{"f is a field with single cardinality"} \\
+    OptField(f) &= \text{"f is a field with optional cardinality"} \\
+    SeqField(f) &= \text{"f is a field with sequential cardinality"} \\
+    CtorOf(c, t) &= \text{"c is a constructor of t"} \\
+    FieldOf(f, c) &= \text{"f is a field of c"} \\
+    TypeOf(t, f) &= \text{"t is the type of f"}
+ \end{split}
+ \end{equation}
+
+\noindent
+The following formulae state some of the basic properties of ASDL:
+ \begin{equation}
+ \begin{split}
+    \forall t(Type(t) &\iff Prim(t) \oplus Comp(t)) \\
+    \forall t(Prim(t) &\Rightarrow \nexists c(CtorOf(c, t))) \\
+    \forall t(Comp(t) &\Rightarrow \exists c(CtorOf(c, t))) \\
+    \forall f(Field(f) &\iff OneHot(SinField(f),\\ 
+    & OptField(f), SeqField(f))) \footnotemark \\
+    \forall c \forall t(CtorOf(c, t) &\Rightarrow Ctor(c) \land Type(t)) \\
+    \forall f \forall c(FieldOf(f, c) &\Rightarrow Field(f) \land Ctor(c)) \\
+    \forall t \forall f(TypeOf(t, f) &\Rightarrow Type(t) \land Field(f)) \\
+    \forall f(&\exists! t(TypeOf(t, f)))\\
+ \end{split}
+ \end{equation}
+\footnotetext{\(OneHot(p, q, r) := (p \land \lnot q \land \lnot r) \lor (\lnot p \land q \land \lnot r) \lor (\lnot p \land \lnot q \land r)\)}
+
+\noindent
+An ASDL description's semantics can be regarded as a sequence of formulae that
+(1) create types, constructors and fields (2) determine field cardinalities 
+(3) establish \(CtorOf\), \(FieldOf\) and \(TypeOf\) relationships.
+
+\subsubsection{ASDL-based Abstract Syntax Trees}
+
+An ASDL description defines a grammar. The sentences of a grammar defined by
+an ASDL description can be transformed from and to ASTs, as is done by
+\(\tau_{2}\) and \(\tau_{3}\). These ASTs build upon the constructs of the
+ASDL description.
+
+\noindent
+Let's introduce the following new predicates:
+
+\begin{align*}
+RootType(t)   &= \text{"t is the root type"} \\
+ValueOf(x, f) &= \text{"x is a value of f"} \\
+TokenOf(x, t) &= \text{"x is a token of t"}
+\end{align*}
+
+\noindent
+The following formulae state the properties of these newly introduced constructs:
+
+\begingroup
+\allowdisplaybreaks
+\vspace{-.5cm}
+\begin{gather*}
+\forall t(RootType(t) \Rightarrow Type(t)) \\
+\exists! t(RootType(t)) \\
+\forall t(Prim(t) \Rightarrow \exists x(TokenOf(x, t))) \\
+\forall t(Comp(t) \Rightarrow \nexists x(TokenOf(x, t))) \\
+\forall f(SinField(f) \Rightarrow \exists! x(ValueOf(x, f))) \\
+\forall f(OptField(f) \Rightarrow \forall x \forall y(ValueOf(x, f) 
+\land ValueOf(y, f) \Rightarrow x = y)) \\
+\forall x \forall f(ValueOf(x, f) \Rightarrow Field(f)) \\
+\forall x \forall f \forall t(ValueOf(x, f) \land
+TypeOf(t, f) \land Comp(t) \Rightarrow Ctor(x) \land CtorOf(c, t)) \\
+\forall x \forall f \forall t(ValueOf(x, f) \land TypeOf(t, f)
+\land Prim(t) \Rightarrow TokenOf(x, t)) \\
+\forall x \forall t(TokenOf(x, t) \Rightarrow Type(t))
+\end{gather*}
+\endgroup
+
+\noindent
+It can be seen that the ASDL description defines exactly when a constructor can be
+the value of a field, however, it doesn't state anything about the tokens corresponding
+to a primitive type. Consider that information implicitly given for any ASDL
+description, for example by an external source. The root type of an ASDL
+description is the first type defined as part of it.
+
+\textbf{\textsc{ASDL-based AST}}\ \ \ An ASDL-based abstract syntax tree is a
+directed tree graph with a single root node. Its inner vertices are constructors,
+while its leaves are either fieldless constructors or tokens. The root node is a
+constructor of the grammar's root type. Each inner node has a number of fields,
+and each of its fields has a number of values (based on their cardinality).
+These values are edges pointing to a constructor node or a token node,
+matching the field's type.
+
+\textbf{\textsc{Completeness}}\ \ \ Such an AST is completed if all of its fields
+are completed. Single fields are completed if they have exactly one value,
+optional fields are completed if they have one value or they have no value
+and have been explicitly flagged as completed, and sequential fields are
+completed if they have been flagged as completed.
+
+\subsubsection{ASDL-based AST Constructing Actions}
+
+\(\tau_{1}\) defines a mapping between the ASDL-based ASTs - introduced in the
+previous section - and a sequence of tree constructing actions. The set of
+these action sequences serves as the intermediate meaning representation
+\(IMR\) for solving the problem. The following tree constructing actions
+are defined on a given ASDL-based AST \(\alpha\):
+
+\textbf{\textsc{ApplyCtor}}\ \ \ An \(\textsc{ApplyCtor}(c)\) action takes
+a constructor \(c\) defined in the ASDL grammar and appends a corresponding
+new node to \(\alpha\)'s leftmost incomplete field. The precondition of this
+action is the existence of an incomplete field in \(\alpha\), the leftmost
+of which is \(f\), and that \(c\) matches the type of \(f\).
+
+\textbf{\textsc{GenToken}}\ \ \ A \(\textsc{GenToken}(s)\) action has the
+same effect and precondition as \textsc{ApplyCtor}, but instead of a
+constructor, it appends a token.
+
+\textbf{\textsc{Reduce}}\ \ \ A \(\textsc{Reduce}()\) action explicitly
+flags \(\alpha\)'s leftmost incomplete field as complete. The precondition
+of this action is the existence of an incomplete field in \(\alpha\),
+the leftmost of which is \(f\), and that \(f\) either has a sequential
+cardinality or an optional cardinality and no values.
+
+Due to the transition system, action sequences that generate a completed
+AST have a one-to-one correspondence with the elements of \(FMR\),
+and the ones that generate an incomplete AST have a one-to-one correspondence
+with the elements of \(V \setminus FMR\). This property is utilized by the
+heuristic solution algorithm that solves the previously defined path-search
+formulation of the intent parsing problem.
+
+\subsection{Neural Network}
+
+Heuristics can be used for many purposes in path-search algorithms. In the current
+case, the heuristic used is a neural network whose predictions serve the two
+requirements of the beam search algorithm: determine when a solution has been
+reached, and label the out-edges of a vertex in proportion to how promising
+following that edge seems to be in order to find a solution. Neither of these
+objectives have a straightforward algorithmic solution, so it is better
+to use a probabilistic approach, in the form of a neural network. In our case, 
+this is the role of TranX. The following sections describe the more important
+parts of it.
+
+\subsubsection{Encoder}
+
+Provided with the input natural language query \(q\) decomposed as a sequence
+of words \(q = w_{1}...w_{|q|}\), the first stage of the neural network is an
+encoder which encodes \(q\)'s information in a hidden state vector \(\mathbf{h} =
+\{\mathbf{h}_{i}\}_{i=1..|q|}\), where \(\mathbf{h}_{i} \in \mathbb{R}\)
+corresponds to the \(i\)-th input word \(w_{i}\) in \(q\).
+
+The encoding is produced by a bidirectional LSTM \cite{HochreiterSchmidhuber1997, SchusterPaliwal1997}, which goes over \(q\) first in a forward, then in a backward
+order. The results are the partial hidden state components
+\(\overrightarrow{\mathbf{h}}_{i} = \overrightarrow{f_{LSTM}}(\mathbf{w}_{i}, \overrightarrow{\mathbf{h}}_{i-1})\) and \(\overleftarrow{\mathbf{h}}_{i} =
+\overleftarrow{f_{LSTM}}(\mathbf{w}_{i}, \overleftarrow{\mathbf{h}}_{i-1})\).
+\(\mathbf{w}_{i}\) denotes the embedding of the \(i\)-th word \(w_{i}\), 
+which is the index of the word in the vocabulary, or if the word is not
+in the vocabulary, the index representing unknowns (\(<unk>\)).
+The \(i\)-th component of the final hidden state is the concatenation of
+these two partial hidden state components: \(\mathbf{h}_{i} = 
+[\overrightarrow{\mathbf{h}}_{i} : \overleftarrow{\mathbf{h}}_{i}]\).
+
+\subsubsection{Decoder - Hidden states}
+
+The decoder component of the neural network takes the hidden state vector
+\(\mathbf{h}\) produced by the encoder, as well as the input query \(q\),
+and predicts the probability of an action \(a_{t}\) being correct.
+
+This probability is conditional to the previous actions applied up to that
+point. This is reflected by the decoder by maintaining an internal hidden
+state, \(s_{t}\) at each time step that is calculated using the previous actions.
+This \(s_{t}\) will be used when computing the action probabilities.
+The exact formula is as follows:
+
+\[\textbf{s}_{t} = f_{LSTM}([\textbf{a}_{t-1} : \tilde{\textbf{s}}_{t-1}], \textbf{s}_{t-1})\]
+
+\textbf{\textsc{Action Embedding}}\ \ \ \(\textbf{a}_{t-1}\) is the embedding
+of the previous action. Two embedding matrices are maintained, \(\textbf{W}_{R}\)
+and \(\textbf{W}_{G}\). Each row in \(\textbf{W}_{R}\), except for the last one
+is an embedding vector for an \textsc{ApplyCtor} action. The last row stands for
+the \textsc{Reduce} action, hence it is handled as if it was a special \textsc{ApplyCtor}
+action. \(\textbf{W}_{G}\) contains rows for the token generation actions. Actions of the
+same type are differentiated by their parameter constructors/tokens, so as many
+\textsc{ApplyCtor} actions exist as many constructors there are. The \textsc{GenToken}
+actions have parameters that correspond to the words in the vocabulary as well
+as the input sequence's tokens.
+
+\textbf{\textsc{Attentional Vector}}\ \ \ \(\tilde{s_{t}}\) is the attention vector
+calculated by \(\tilde{s_{t}} = \text{tanh}(\textbf{W}_{c}[\textbf{c}_{t} :
+\textbf{s}_{t}])\). This vector has been introduced in \cite{LuongPhamManning2015}. % as Eq. (5)
+\(\textbf{W}_{c}\) is the weight matrix of the concatenation layer used to
+merge the context vector \(\textbf{c}_{t}\) and the decoder hidden
+state \(\textbf{s}_{t}\).
+
+\textbf{\textsc{Context Vector}}\ \ \ The context vector \(\textbf{c}_{t}\) is
+computed by the annotations produced by the encoder (its hidden state vector
+\(\textbf{h}\)), as described by \cite{BahdanauChoBengio2014}. The exact computation
+is a weighted sum of the annotations:
+
+\[\textbf{c}_{t} = \sum_{i=1}^{|q|}\alpha_{t_{i}}\textbf{h}_{i}\]
+
+Since the context vector is a sum of all the input encoding, this attention
+mechanism is global in nature. Here the attention weights \(\alpha_{t_{i}}\)
+are calculated using:
+
+\[\alpha_{t_{i}} = \frac{\exp(e_{t_{i}})}{\sum_{j=1}^{|q|}\exp(e_{t_{j}})}\]
+
+The energy \(e_{t_{i}}\) of the weight \(\alpha_{t_{i}}\) is produced by an alignment
+model and it acts as a score to show how important \(\textbf{h}_{i}\) is for the
+calculation of the next decoder hidden state \(\textbf{s}_{t}\). The alignment
+model utilized is the dot product score function introduced in \cite{LuongPhamManning2015}.
+Its inputs are the encoding \(\textbf{h}_{i}\) and the previous decoder
+hidden state \(\textbf{s}_{t-1}\):
+
+\[e_{t_{i}} = \text{align}(\textbf{s}_{t-1}, \textbf{h}_{i}) = \textbf{s}_{t-1}^{T}\textbf{h}_{i}\]
+
+\subsubsection{Decoder - Action probabilities}
+
+The calculation of the probability \(p(A_{t} | \cap_{i=1}^{t-1} A_{i} \cap Q)\)
+is identical to the method described in \cite{YinNeubig2018}. This process
+depends on what kind of action \(A_{t}\) is. The \(\textsc{ApplyCtor}\) and
+\(\textsc{Reduce}\) actions are calculated similarly, as the latter category
+is handled as a special version of the former.
+
+\textbf{\textsc{ApplyCtor Action}}\ \ \ The probability of applying a rule
+\(r\) (which could be the reduce "rule") at time step \(t\) conditional
+on the input query \(Q\) and the preceeding actions \(A_{i} \ (i \in [1,t-1])\) is:
+
+\[p = \text{softmax}(\textbf{a}_{r}^{T}\textbf{W}\tilde{\textbf{s}}_{t} + \textbf{b})\]
+
+\textbf{\textsc{GenToken Action}}\ \ \ This probability is the sum of the
+probability of two cases: the case of generating a token from the vocabulary
+and the case of copying a token from the input query. The following events are
+introduced: \(GEN\) if \(A_{t}\) is a generation action, \(GEN_{v}\) if \(A_{t}\)
+generates the word \(v\) from the vocabulary, \(COPY\) if \(A_{t}\) is a copy
+action, \(COPY_{w}\) if \(A_{t}\) copies the word \(w\) from the input query.
+
+\[p = p(GEN)p(GEN_{v}|GEN) + p(COPY)p(COPY_{w}|COPY)\]
+
+\(p(GEN)\) and \(p(COPY)\) are based on the attention over the encodings by
+a linear layer as in \(\text{softmax}(\textbf{W}\tilde{\textbf{s}}_{t})\)
+(the weights are different for \(GEN\) and \(COPY\)). \(p(GEN_{v}|GEN)\) is
+given by \(\text{softmax}(\textbf{a}_{v}^{T}\textbf{W}\tilde{\textbf{s}}_{t}
++ \textbf{b})\) whereas \(p(COPY_{w}|COPY)\) is predicted by a pointer network
+\cite{VinyalsFortunatoJaitly2015} with a single linear layer.
+The pointer network is utilized because the number of input tokens is variable.

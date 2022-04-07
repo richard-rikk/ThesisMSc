@@ -294,6 +294,7 @@
 \RequirePackage{amsthm}
 \RequirePackage{amsmath}
 \RequirePackage{amsfonts}
+\RequirePackage{amssymb}
 \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 % ------------------------------
 

@@ -10,7 +10,7 @@
 % The minted package is also supported for source highlighting
 \usepackage[newfloat]{minted}
 \usepackage{booktabs}
-\usepackage{cleveref}
+\usepackage[capitalise]{cleveref} %the package cleveref must be loaded after hyperref.
 \usepackage{enumitem}
 
 % Dolgozat metaadatai
@@ -62,14 +62,13 @@
 
 %%%%%%%%%%%%%%% Main content %%%%%%%%%%%%%%%
 \input{chapters/motivation}
-\cleardoublepage
-
 \input{chapters/intro.tex}
 \input{chapters/related_work}
 \input{chapters/overview}
 \input{chapters/algorithmic_patterns}
 \input{chapters/utterance_generation}
 \input{chapters/tranx}
+\input{chapters/tranx_background}
 \input{chapters/evaluation}
 \input{chapters/conclusion}
 \input{chapters/acknowledgements}

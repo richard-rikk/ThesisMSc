@@ -1,5 +1,3 @@
-![CI status](https://github.com/mcserep/elteikthesis/workflows/Build%20LaTeX%20document/badge.svg)
-
 # ELTE FI bachelor and master thesis template
 
 The [thesis.tex](thesis.tex) and the produced [thesis.pdf](thesis.pdf) serves as an example of usage.
@@ -69,4 +67,3 @@ See the `minted-integration.tex` file for example.
 * *theorem*
 * *remark*
 * *note*
-
