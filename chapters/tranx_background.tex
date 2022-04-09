@@ -8,20 +8,25 @@ statement, the transition system, and the neural network architecture itself.
 
 \subsubsection{Semantic Parsing}\label{sec:parsing}
 
-The general task of semantic parsing consists of mapping a natural language query to a
+The general task of semantic parsing is a mapping of a natural language query to a
 corresponding formal meaning representation. This can be formalized as finding the relation
 \(\varphi \subseteq NLQ \times FMR\)\label{form:fmr}, where for a given query \(q\) a 
-representation \(r\)corresponds to \(q\) if \(r \in \varphi(q)\).
+representation \(r\) corresponds to \(q\) if \(r \in \varphi(q)\). In this case,
+\( \varphi(q) \) is a set emphasizing that a query may have multiple correct 
+formal representations. One way of evaluating these is by defining a fit
+function \( FMR \to \mathbb{R} \) and taking \( r \) with the highest value. 
+However, in our case, every element of \( \varphi(q) \) has the same fitness,
+meaning, our only consideration is that \(r\) corresponds to \(q\).
 
-For the purposes of this paper, a \(q = w_{1} \dots w_{|q|} \in NLQ\) query is a correctly
+For our purposes, a \(q = w_{1} \dots w_{|q|} \in NLQ\) query is a correctly
 formulated body of text in a given natural language, expressed as a sequence of words.
 An \(r = s_{1} ... s_{|r|} \in FMR\) representation is a sequence of terminal symbols
 that is valid in a given formal language.
 
-The relationship captured by \(\varphi\) is semantic by nature. When \((q, r)\) is an element of
-\(\varphi\), it is intended to imply that the human-understood meaning of \(q\) can be equated
-with the machine-understandable \(r\).
-
+The relationship captured by \(\varphi\) is semantic by nature. When \((q, r)\) is
+an element of \(\varphi\), it is intended to imply that the human-understood
+meaning of \(q\) can be equated with the machine-understandable \(r\). 
+ 
 \subsubsection{Intent Parsing}
 
 Intent parsing is a special case of semantic parsing. In intent parsing, the meaning of 
@@ -127,7 +132,8 @@ The following formulae state some of the basic properties of ASDL:
     \forall f(&\exists! t(TypeOf(t, f)))\\
  \end{split}
  \end{equation}
-\footnotetext{\(OneHot(p, q, r) := (p \land \lnot q \land \lnot r) \lor (\lnot p \land q \land \lnot r) \lor (\lnot p \land \lnot q \land r)\)}
+\footnotetext{\(OneHot(p, q, r) := (p \land \lnot q \land \lnot r) 
+\lor (\lnot p \land q \land \lnot r) \lor (\lnot p \land \lnot q \land r)\)}
 
 \noindent
 An ASDL description's semantics can be regarded as a sequence of formulae that
@@ -245,7 +251,8 @@ encoder which encodes \(q\)'s information in a hidden state vector \(\mathbf{h} 
 \{\mathbf{h}_{i}\}_{i=1..|q|}\), where \(\mathbf{h}_{i} \in \mathbb{R}\)
 corresponds to the \(i\)-th input word \(w_{i}\) in \(q\).
 
-The encoding is produced by a bidirectional LSTM \cite{HochreiterSchmidhuber1997, SchusterPaliwal1997}, which goes over \(q\) first in a forward, then in a backward
+The encoding is produced by a bidirectional LSTM \cite{HochreiterSchmidhuber1997,
+SchusterPaliwal1997}, which goes over \(q\) first in a forward, then in a backward
 order. The results are the partial hidden state components
 \(\overrightarrow{\mathbf{h}}_{i} = \overrightarrow{f_{LSTM}}(\mathbf{w}_{i}, \overrightarrow{\mathbf{h}}_{i-1})\) and \(\overleftarrow{\mathbf{h}}_{i} =
 \overleftarrow{f_{LSTM}}(\mathbf{w}_{i}, \overleftarrow{\mathbf{h}}_{i-1})\).
