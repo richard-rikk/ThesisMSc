@@ -1,22 +1,26 @@
-\section{Details of the model}
+\section{TranX in detail}
 TranX is a complex web of technologies working collectively in order to create meaning
 representations from natural language descriptions. This section unravels the web by
 explaining in detail the more important parts of the model. These parts are the problem
 statement, the transition system, and the neural network architecture itself.
 
 \subsection{Problem Statement}
+This section formulates the problem to be solved by the model. The formulae allow
+us to describe the transition system and the network itself in a clear and compact
+fashion.
 
 \subsubsection{Semantic Parsing}\label{sec:parsing}
 
 The general task of semantic parsing is a mapping of a natural language query to a
-corresponding formal meaning representation. This can be formalized as finding the relation
-\(\varphi \subseteq NLQ \times FMR\)\label{form:fmr}, where for a given query \(q\) a 
-representation \(r\) corresponds to \(q\) if \(r \in \varphi(q)\). In this case,
-\( \varphi(q) \) is a set emphasizing that a query may have multiple correct 
-formal representations. One way of evaluating these is by defining a fit
-function \( FMR \to \mathbb{R} \) and taking \( r \) with the highest value. 
-However, in our case, every element of \( \varphi(q) \) has the same fitness,
-meaning, our only consideration is that \(r\) corresponds to \(q\).
+corresponding formal meaning representation. This can be formalized as finding
+the relation\(\varphi \subseteq NLQ \times FMR\)\label{form:fmr}, where for
+a given query \(q\) a representation \(r\) corresponds to \(q\) if 
+\(r \in \varphi(q)\). In this case, \( \varphi(q) \) is a set emphasizing
+that a query may have multiple correct formal representations. One way of 
+evaluating these is by defining a fit function \( FMR \to \mathbb{R} \)
+and taking \( r \) with the highest value.However, in our case, every
+element of \( \varphi(q) \) has the same fitness meaning, our only
+consideration is that \(r\) corresponds to \(q\).
 
 For our purposes, a \(q = w_{1} \dots w_{|q|} \in NLQ\) query is a correctly
 formulated body of text in a given natural language, expressed as a sequence of words.
@@ -29,55 +33,68 @@ meaning of \(q\) can be equated with the machine-understandable \(r\).
  
 \subsubsection{Intent Parsing}
 
-Intent parsing is a special case of semantic parsing. In intent parsing, the meaning of 
-\(q\) is the object of the intention, the action intended to be carried out. The form in 
-which this meaning is to be represented after semantic parsing is such that the original 
-action may be performed based solely on the representation.
+Intent parsing is a special case of semantic parsing. In intent parsing,
+the meaning of \(q\) is the object of the intention, the action intended
+to be carried out. The form in which this meaning is to be represented
+after semantic parsing is such that the original action may be performed
+based solely on the representation.
 
-Intent parsing can be used to model the semantic transition that takes place when writing
-a computer program. The programmer has an action in mind that is to be performed by the
-computer upon running the program. This action's description is already formulated by
-the programmer in a natural language before it is implemented in a programming language.
+Intent parsing can be used to model the semantic transition that takes
+place when writing a computer program. The programmer has an action in
+mind that is to be performed by the computer upon running the program.
+This action's description is already formulated by the programmer in a
+natural language before it is implemented in a programming language.
 
-In our case, a natural language description of a programming task (an action to be
-performed by a computer) serves as the input, and a program that solves the described
-task (performs the required action) is the output.
+In our case, a natural language description of a programming task
+(an action to be performed by a computer) serves as the input, and
+a program that solves the described task (performs the required
+action) is the output.
 
 \subsection{Transition System}
 
+The heart of TranX is a transition system which creates formal meaning
+representations from ASTs. This section describes the system, including
+the transition process which is used to transform ASTs and the ASDL
+grammar, which is used to create the trees themselves.
+
 \subsubsection{Transition Process}
 
-A transition system \(\tau\) is a bijective function from an arbitrary set \(IMR\) to \(FMR\),
-in our case \(IMR\) is a set of AST constructing action sequences and \(FMR\) is a set of formal
-meaning representations. Using the transition system, one can solve the intent parsing task of
-finding an \(r \in \varphi(q)\) for a given \(q\) by finding an \(a \in IMR\) for which
-\(\tau(a) = r \in \varphi(q)\). In this sense, \(IMR\) is the set of intermediate meaning
-representations, and the transition system is the method of conversion between them and the
-final outputs, the elements of \(FMR\).
+A transition system \(\tau\) is a bijective function from an arbitrary set
+\(IMR\) to \(FMR\). In our case intermediate meaning representation
+\((IMR)\) is a set of AST constructing action sequences and \(FMR\)
+is a set of formal meaning representations. Using the transition system,
+one can solve the intent parsing task of finding an \(r \in \varphi(q)\)
+for a given \(q\) by finding an \(a \in IMR\) action sequence for which
+\(\tau(a) = r \in \varphi(q)\). 
 
-\textbf{\textsc{Decomposition}}\ \ \ The transition system can take several steps to get
-from an \(a \in IMR\) to an \(r \in FMR\), and similarly, its inverse \(\tau^{-1}\)
-can take these same steps in a backward order to perform the conversion in the other direction.
+\textbf{\textsc{Decomposition}}\ \ \ The transition system can take
+several steps to get from an \(a \in IMR\) to an \(r \in FMR\), and
+similarly, its inverse \(\tau^{-1}\) can take these same steps in a
+backward order to perform the conversion in the other direction.
 This essentially means that the transition system is a function composition
-\(\tau = \tau_{n} \circ ... \circ \tau_{1}\) and \(\tau^{-1} = \tau_{1}^{-1} \circ \dots 
-\circ \tau_{n}^{-1}\), where each \(\tau_{i}\) is bijective.
+\(\tau = \tau_{n} \circ \dots \circ \tau_{1}\) and \(\tau^{-1} = 
+\tau_{1}^{-1} \circ \dots \circ \tau_{n}^{-1}\), where each \(\tau_{i}\)
+is bijective.
 
-\textbf{\textsc{Transition Process}}\ \ \ In the case of TranX, a transition system is utilized
-for which \(\tau^{-1}\) works similarly to a compiler. \(\tau_{5}^{-1}\) is a lexical scanner, 
-which takes the sequence of words of a syntactically correct Python program, and transforms it
-into a sequence of tokens. \(\tau_{4}^{-1}\) converts this token sequence into a parse tree,
-according to Python's full grammar specification \cite{PythonFullGrammar}. \(\tau_{3}^{-1}\) 
-transforms the parse tree into a more compact and easier-to-handle abstract syntax tree (AST),
-according to Python's abstract syntax grammar specification \cite{PythonAbstractGrammar}.
-So far, this process is equivalent to the functionality of CPython's parser module
-\cite{CPythonCompiler}. \(\tau_{2}^{-1}\) converts the Python AST to an isomorphic AST
-with a different underlying implementation. Finally, \(\tau_{1}^{-1}\) outputs a sequence
-of tree-constructing actions that correspond to the leftmost generative story
-of the previous component's AST.
+\textbf{\textsc{Transition Process}}\ \ \ In the case of TranX, a 
+transition system is utilized for which \(\tau^{-1}\) works similarly
+to a compiler. \(\tau_{5}^{-1}\) is a lexical scanner, which takes
+the sequence of words of a syntactically correct Python program,
+and transforms it into a sequence of tokens. \(\tau_{4}^{-1}\) converts
+this token sequence into a parse tree, according to Python's full grammar
+specification \cite{PythonFullGrammar}. \(\tau_{3}^{-1}\) transforms the
+parse tree into a more compact and easier-to-handle abstract syntax tree
+(AST), according to Python's abstract syntax grammar specification \cite{PythonAbstractGrammar}. So far, this process is equivalent to the
+functionality of CPython's parser module \cite{CPythonCompiler}. 
+\(\tau_{2}^{-1}\) converts the Python AST to an isomorphic AST with a
+different underlying implementation. Finally, \(\tau_{1}^{-1}\) outputs
+a sequence of tree-constructing actions that correspond to the leftmost
+generative story of the previous component's AST.
 
-\textbf{\textsc{Invertibility}}\ \ \ It is important to note that the above described transitions
-are usually not reversible, certain restrictions have to be put in place to ensure one-to-one
-correspondence. Having said that, the bijectivity of these functions is accepted to be given,
+\textbf{\textsc{Invertibility}}\ \ \ It is important to note that the
+above described transitions are usually not reversible, certain
+restrictions have to be put in place to ensure one-to-one correspondence.
+Having said that, the bijectivity of these functions is accepted to be given,
 and the specifics of how it is achieved is not discussed in detail here.
 
 \subsubsection{ASDL}
@@ -190,22 +207,22 @@ description is the first type defined as part of it.
 directed tree graph with a single root node. Its inner vertices are constructors,
 while its leaves are either fieldless constructors or tokens. The root node is a
 constructor of the grammar's root type. Each inner node has a number of fields,
-and each of its fields has a number of values (based on their cardinality).
+and each of its fields has a number of values based on their cardinality.
 These values are edges pointing to a constructor node or a token node,
 matching the field's type.
 
 \textbf{\textsc{Completeness}}\ \ \ Such an AST is completed if all of its fields
 are completed. Single fields are completed if they have exactly one value,
-optional fields are completed if they have one value or they have no value
-and have been explicitly flagged as completed, and sequential fields are
-completed if they have been flagged as completed.
+optional fields are completed if they have one or no value and have been
+explicitly flagged as completed, and sequential fields are completed if
+they have been flagged as such. %completed
 
 \subsubsection{ASDL-based AST Constructing Actions}
 
-\(\tau_{1}\) defines a mapping between the ASDL-based ASTs - introduced in the
-previous section - and a sequence of tree constructing actions. The set of
-these action sequences serves as the intermediate meaning representation
-\(IMR\) for solving the problem. The following tree constructing actions
+\(\tau_{1}\) defines a mapping between the ASDL-based ASTs  and
+a sequence of tree constructing actions. The set of these action
+sequences serves as the intermediate meaning representation
+for solving the problem. The following tree constructing actions
 are defined on a given ASDL-based AST \(\alpha\):
 
 \textbf{\textsc{ApplyCtor}}\ \ \ An \(\textsc{ApplyCtor}(c)\) action takes
@@ -227,9 +244,10 @@ cardinality or an optional cardinality and no values.
 Due to the transition system, action sequences that generate a completed
 AST have a one-to-one correspondence with the elements of \(FMR\),
 and the ones that generate an incomplete AST have a one-to-one correspondence
-with the elements of \(V \setminus FMR\). This property is utilized by the
-heuristic solution algorithm that solves the previously defined path-search
-formulation of the intent parsing problem.
+with the elements of \(V \setminus FMR\). In this case, \( V \) is a set
+of vertices of the generated AST. This property is utilized by some
+heuristic algorithms that solve the path-search formulation of
+the intent parsing problem.
 
 \subsection{Neural Network}
 
