@@ -9,7 +9,13 @@
   randomly selecting values for all the other fields from lists of possible
   values.}
 
-In this section, our training dataset generation method is presented. The method can be seen in \cref{fig:method}. First, a context-free grammar (CFG) is created -- in Backus-Naur Form (BNF)\cite{bnf} -- for some set of tasks. The tasks, in our case are solvable by algorithmic patterns and are expressed in natural language. After that, templates are handcrafted so that they satisfy the CFG and they cover the selected tasks.
+In this section, our training dataset generation method is presented.
+The method can be seen in \cref{fig:method}. First, a context-free
+grammar (CFG) is created -- in Backus-Naur Form (BNF)\cite{bnf} -- for
+some set of tasks. The tasks, in our case are solvable by algorithmic
+patterns and are expressed in natural language. After that, templates
+are handcrafted so that they satisfy the CFG and they cover the
+selected tasks.
 
 The generator is using the templates to generate the \emph{(structured task
 description, Python code snippet)} pairs in multiple steps. First, for a given
@@ -25,8 +31,11 @@ us to define a broad set of tasks, which have well defined solutions. Using
 algorithmic patterns has the advantage that they are simple and mathematically
 sound.
 
-After generating the dataset containing enough \emph{(structured task description, Python code snippet)} pairs, the transition-based neural network TranX \cite{tranx} is trained on it.
-Even though it is trained on structured inputs, we test its ability to map \emph{unconstrained} task descriptions to code snippets.
+After generating the dataset containing enough \emph{(structured task
+description, Python code snippet)} pairs, the transition-based neural
+network TranX \cite{tranx} is trained on it.
+Even though it is trained on structured inputs, we test its ability
+to map \emph{unconstrained} task descriptions to code snippets.
 
 TranX is usually used to map unconstrained natural language utterances to formal
 meaning representations, which are typically code snippets. It has already

@@ -1,8 +1,10 @@
 \section{TranX in detail}
 TranX is a complex web of technologies working collectively in order to create meaning
 representations from natural language descriptions. This section unravels the web by
-explaining in detail the more important parts of the model. These parts are the problem
-statement, the transition system, and the neural network architecture itself.
+explaining in detail the more important parts of the model. First we take a look at
+the problem statement which defines the kind of problems TranX meant to solve.
+Then we dissect the model itself and analyse its parts like the used grammar,
+the transition system, and the neural network architecture itself.
 
 \subsection{Problem Statement}
 This section formulates the problem to be solved by the model. The formulae allow
@@ -60,12 +62,11 @@ grammar, which defines the trees themselves.
 \subsubsection{Transition Process}
 
 A transition system \(\tau\) is a bijective function from an arbitrary set
-\(IMR\) to \(FMR\). In our case intermediate meaning representation
-\((IMR)\) is a set of AST constructing action sequences and \(FMR\)
-is a set of formal meaning representations. Using the transition system,
-one can solve the intent parsing task of finding an \(r \in \varphi(q)\)
-for a given \(q\) by finding an \(a \in IMR\) action sequence for which
-\(\tau(a) = r \in \varphi(q)\). 
+\(IMR\) to \(FMR\), where \(IMR\) is a set of intermediate meaning 
+representation while \(FMR\) is a set of formal meaning representations.
+Using the transition system, one can solve the intent parsing task
+of finding an \(r \in \varphi(q)\) for a given \(q\) by finding an
+\(a \in IMR\) action sequence for which \(\tau(a) = r \in \varphi(q)\). 
 
 \textbf{\textsc{Decomposition}}\ \ \ The transition system can take
 several steps to get from an \(a \in IMR\) to an \(r \in FMR\), and
@@ -258,14 +259,11 @@ the intent parsing problem.
 \subsection{Neural Network}
 
 Heuristics can be used for many purposes in path-search algorithms. In the current
-case, the heuristic used is a neural network whose predictions serve the two
-requirements of the beam search algorithm: determine when a solution has been
-reached, and label the out-edges of a vertex in proportion to how promising
-following that edge seems to be in order to find a solution. Neither of these
-objectives have a straightforward algorithmic solution, so it is better
-to use a probabilistic approach, in the form of a neural network. In our case, 
-this network is TranX. The following sections describe the more important
-parts of it.
+case, the heuristic used is a neural network whose predictions serve the
+beam search algorithm: label the out-edges of a vertex in proportion to how promising
+following that edge seems to be in order to find a solution. This objective has no straightforward algorithmic solution, so it is better to use a probabilistic
+approach, in the form of a neural network. In our case, this the network used by
+TranX. The following sections describe the more important parts of it.
 
 \subsubsection{Encoder}
 
@@ -354,6 +352,7 @@ is handled as a special version of the former.
 on the input query \(Q\) and the preceeding actions \(A_{i} \ (i \in [1,t-1])\) is:
 
 \[p = \text{softmax}(\textbf{a}_{r}^{T}\textbf{W}\tilde{\textbf{s}}_{t} + \textbf{b})\]
+
 
 \textbf{\textsc{GenToken Action}}\ \ \ This probability is the sum of the
 probability of two cases: the case of generating a token from the vocabulary
